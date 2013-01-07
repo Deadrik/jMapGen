@@ -1,0 +1,16 @@
+package graph;
+
+import java.awt.Point;
+
+  
+  
+  public class Edge 
+  {
+    public int index;
+    public var d0:Center, d1:Center;  // Delaunay edge
+    public var v0:Corner, v1:Corner;  // Voronoi edge
+    public Point midpoint;  // halfway between v0,v1
+    public int river;  // volume of water, or 0
+    
+  }
+
