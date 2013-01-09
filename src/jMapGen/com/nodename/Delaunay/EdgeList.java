@@ -51,8 +51,13 @@ import java.util.Vector;
 		public void insert(Halfedge lb, Halfedge newHalfedge)
 		{
 			newHalfedge.edgeListLeftNeighbor = lb;
-			newHalfedge.edgeListRightNeighbor = lb.edgeListRightNeighbor;
-			lb.edgeListRightNeighbor.edgeListLeftNeighbor = newHalfedge;
+			
+			if(lb.edgeListRightNeighbor != null)
+				newHalfedge.edgeListRightNeighbor = lb.edgeListRightNeighbor;
+			
+			if(lb.edgeListRightNeighbor != null)
+				lb.edgeListRightNeighbor.edgeListLeftNeighbor = newHalfedge;
+			
 			lb.edgeListRightNeighbor = newHalfedge;
 		}
 
@@ -114,7 +119,7 @@ import java.util.Vector;
 			{
 				if(halfEdge != null)
 				{
-					while(halfEdge != _leftEnd && !halfEdge.isLeftOf(p))
+					while(halfEdge != _leftEnd && halfEdge.edge != null && !halfEdge.isLeftOf(p))
 					{
 						halfEdge = halfEdge.edgeListLeftNeighbor;
 					}

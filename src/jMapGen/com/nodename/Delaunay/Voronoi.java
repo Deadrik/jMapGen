@@ -11,17 +11,12 @@
  * REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
  * OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
  */
-
-
 package jMapGen.com.nodename.Delaunay;
 
 import jMapGen.Point;
 import jMapGen.com.nodename.geom.Circle;
-import jMapGen.com.nodename.geom.LineSegment;
 
 import java.awt.Rectangle;
-import java.util.ArrayList;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Vector;
 
@@ -279,7 +274,7 @@ public class Voronoi
 				edgeList.insert(lbnd, bisector);
 
 				// second half of Step 11:
-				if ((vertex = Vertex.intersect(bisector, rbnd)) != null)
+				if (rbnd != null && (vertex = Vertex.intersect(bisector, rbnd)) != null)
 				{
 					vertices.add(vertex);
 					bisector.vertex = vertex;

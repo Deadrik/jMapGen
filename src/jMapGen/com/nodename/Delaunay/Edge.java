@@ -81,8 +81,11 @@ public class Edge implements  Comparator<Edge>
 		// draw a line connecting the input Sites for which the edge is a bisector:
 		Site ls = getLeftSite();
 		Site rs = getRightSite();
-
-		return new LineSegment(ls.getCoord(), rs.getCoord());
+		
+		if(ls != null && rs != null)
+			return new LineSegment(ls.getCoord(), rs.getCoord());
+		
+		return null;
 	}
 
 	public LineSegment voronoiEdge()
