@@ -48,6 +48,31 @@ public class DelaunayUtil
 		return segments;
 	}
 	
+	public static void setAtPosition(Vector v, int index, Object value)
+	{
+		if(index > v.size())
+		{
+			v.ensureCapacity(index);
+		}
+		v.add(index, value);
+	}
+	
+	public static Object getAtPosition(Vector v, int index)
+	{
+		if(index > v.size())
+		{
+			v.ensureCapacity(index+1);
+		}
+		try
+		{
+			return v.get(index);
+		}
+		catch(IndexOutOfBoundsException e)
+		{
+			return null;
+		}
+	}
+	
 //	public static Vector<Edge> selectNonIntersectingEdges(BitmapData keepOutMask, Vector<Edge> edgesToTest):
 //	{
 //		if (keepOutMask == null)

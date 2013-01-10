@@ -337,29 +337,12 @@ public class Voronoi
 			}
 		}
 
-		// heap should be empty now
-//		heap.dispose();
-//		edgeList.dispose();
-
-//		for(int iter = 0; iter < halfEdges.size(); iter++)
-//		{
-//			halfEdge.reallyDispose();
-//		}
-//		halfEdges.length = 0;
-//
-//		// we need the vertices to clip the edges
-//		for each (edge in _edges)
-//		{
-//			edge.clipVertices(_plotBounds);
-//		}
-//		// but we don't actually ever use them again!
-//		for each (vertex in vertices)
-//		{
-//			vertex.dispose();
-//		}
-//		vertices.length = 0;
-
-		
+		// we need the vertices to clip the edges
+		for(int i = 0; i < _edges.size(); i++)
+		{
+			edge = _edges.get(i);
+			edge.clipVertices(_plotBounds);
+		}
 	}
 	
 	public static Site leftRegion(Halfedge he)

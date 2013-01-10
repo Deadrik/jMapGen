@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Vector;
 
+import jMapGen.com.nodename.Delaunay.DelaunayUtil;
 import jMapGen.com.nodename.Delaunay.Voronoi;
 import jMapGen.com.nodename.geom.LineSegment;
 import jMapGen.graph.Center;
@@ -75,7 +76,7 @@ public class Map
 		Voronoi voronoi = new Voronoi(points, R);
 		
 		buildGraph(points, voronoi);
-		
+		/*
 		improveCorners();
 
 		// Determine the elevations and water at Voronoi corners.
@@ -125,7 +126,7 @@ public class Map
 		redistributeMoisture(landCorners(corners));
 		assignPolygonMoisture();
 
-		assignBiomes();
+		assignBiomes();*/
 	}
 
 	public void setup() 
@@ -401,11 +402,12 @@ public class Map
 
 		if (point == null) return null;
 
-		for (bucket = (int) ((point.x)-1); bucket <= (int)((point.x)+1); bucket++) 
+		for (bucket = (int) ((point.x)-1); bucket <= (int)((point.x)+1) && bucket >= 0; bucket++) 
 		{
-			for(int i = 0; i < _cornerMap.get(bucket).size(); i++) 
+			Vector<Corner> cornermap = (Vector<Corner>) DelaunayUtil.getAtPosition(_cornerMap, bucket);
+			for(int i = 0; i < cornermap.size(); i++) 
 			{
-				q = _cornerMap.get(bucket).get(i);
+				q = cornermap.get(i);
 				double dx = point.x - q.point.x;
 				double dy = point.y - q.point.y;
 				if (dx*dx + dy*dy < 1e-6) 
@@ -415,9 +417,9 @@ public class Map
 			}
 		}
 		bucket = (int)(point.x);
-		if (_cornerMap.get(bucket) != null) 
+		if (bucket >= 0 && _cornerMap.size() > bucket && _cornerMap.get(bucket) != null) 
 		{
-			_cornerMap.set(bucket, null);
+			DelaunayUtil.setAtPosition(_cornerMap, bucket, null);
 		}
 		q = new Corner();
 		q.index = corners.size();
@@ -431,7 +433,8 @@ public class Map
 
 		Vector<Corner> map = new Vector<Corner>();
 		map.add(q);
-		_cornerMap.set(bucket, map);
+		DelaunayUtil.setAtPosition(_cornerMap, bucket, map);
+		//_cornerMap.set(bucket, map);
 		return q;
 
 	}
