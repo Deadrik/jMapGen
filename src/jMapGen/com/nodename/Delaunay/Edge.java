@@ -103,13 +103,13 @@ public class Edge implements  Comparator<Edge>
 	// the two Voronoi vertices that the edge connects
 	//		(if one of them is null, the edge extends to infinity)
 	Vertex _leftVertex;
-	Vertex getleftVertex()
+	public Vertex getLeftVertex()
 	{
 		return _leftVertex;
 	}
 
 	Vertex _rightVertex;
-	Vertex getRightVertex()
+	public Vertex getRightVertex()
 	{
 		return _rightVertex;
 	}
@@ -199,7 +199,7 @@ public class Edge implements  Comparator<Edge>
 		return _sites[leftRight.value];
 	}
 
-	private int _edgeIndex;
+	public int _edgeIndex;
 
 
 	public Edge()

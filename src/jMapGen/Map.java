@@ -3,6 +3,8 @@
 // License: MIT
 package jMapGen;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -26,7 +28,7 @@ import jMapGen.graph.Edge;
 
 public class Map 
 {
-	static int NUM_POINTS = 2000;
+	static int NUM_POINTS = 500;
 	static double LAKE_THRESHOLD = 0.3;  // 0 to 1, fraction of water corners for water polygon
 	static int NUM_LLOYD_ITERATIONS = 2;
 
@@ -74,25 +76,14 @@ public class Map
 		setup();
 		//Generate the initial random set of points
 		points = generateRandomPoints();
-		
-		try 
-		{
-			BufferedImage outBitmap = new BufferedImage(640,640,BufferedImage.TYPE_INT_RGB);
-			for(int j = 0; j < points.size(); j++)
-			{
-				Point c = points.get(j);
 
-				outBitmap.setRGB((int)c.x, (int)c.y, 0xFFFFFF);
-			}
-			ImageIO.write(outBitmap, "BMP", new File("hm-initial.bmp"));
-		} catch (IOException e) {e.printStackTrace();}
-		
 		improveRandomPoints(points);
-/*
+
 		Rectangle R = new Rectangle();
 		R.setFrame(0, 0, SIZE, SIZE);
+		System.out.println("Starting Creating map Voronoi...");
 		Voronoi voronoi = new Voronoi(points, R);
-		
+		System.out.println("Finished Creating map Voronoi...");
 		buildGraph(points, voronoi);
 		
 		improveCorners();
@@ -144,7 +135,34 @@ public class Map
 		redistributeMoisture(landCorners(corners));
 		assignPolygonMoisture();
 
-		assignBiomes();*/
+		assignBiomes();
+		
+		try 
+		{
+			BufferedImage outBitmap = new BufferedImage(640,640,BufferedImage.TYPE_INT_RGB);
+			Graphics2D g = (Graphics2D) outBitmap.getGraphics();
+			g.setColor(Color.gray);
+			int failedcount = 0;
+			for(int j = 0; j < voronoi.getEdges().size(); j++)
+			{
+				jMapGen.com.nodename.Delaunay.Edge e = voronoi.getEdges().get(j);
+				if(e.getRightVertex() != null && e.getLeftVertex() != null)
+					g.drawLine((int)e.getLeftVertex().getX(), (int)e.getLeftVertex().getY(), (int)e.getRightVertex().getX(), (int)e.getRightVertex().getY());
+				else
+				{
+					failedcount++;
+					System.out.println("Failed to create:" + e.toString());
+				}
+			}
+			g.setColor(Color.RED);
+			for(int j = 0; j < this.centers.size(); j++)
+			{
+				Center c = centers.get(j);
+				g.drawRect((int)c.point.x, (int)c.point.y, (int)1, (int)1);
+			}
+			System.out.println("Failed to create lines count:" + failedcount++ + "/"+voronoi.getEdges().size());
+			ImageIO.write(outBitmap, "BMP", new File("hm-edgesFinal.bmp"));
+		} catch (IOException e) {e.printStackTrace();}
 	}
 
 	public void setup() 
@@ -180,6 +198,7 @@ public class Map
 	// Improve the random set of points with Lloyd Relaxation.
 	public void improveRandomPoints(Vector<Point> points) 
 	{
+		System.out.println("Starting improveRandomPoints...");
 		// We'd really like to generate "blue noise". Algorithms:
 		// 1. Poisson dart throwing: check each new point against all
 		//     existing points, and reject it if it's too close.
@@ -201,19 +220,6 @@ public class Map
 			Rectangle R = new Rectangle();
 			R.setFrame(0, 0, SIZE, SIZE);
 			voronoi = new Voronoi(points ,R);
-			
-			
-			try 
-			{
-				BufferedImage outBitmap = new BufferedImage(640,640,BufferedImage.TYPE_INT_RGB);
-				for(int j = 0; j < points.size(); j++)
-				{
-					Point c = points.get(j);
-
-					outBitmap.setRGB((int)c.x, (int)c.y, 0xFFFFFF);
-				}
-				ImageIO.write(outBitmap, "BMP", new File("hm-postVornoi-"+i+".bmp"));
-			} catch (IOException e) {e.printStackTrace();}
 
 			for(int ind = 0; ind < points.size(); ind++)  
 			{
@@ -231,9 +237,49 @@ public class Map
 				p.y /= region.size();
 				//region.splice(0, region.size());
 			}
+			
+			try 
+			{
+				BufferedImage outBitmap = new BufferedImage(640,640,BufferedImage.TYPE_INT_RGB);
+				for(int j = 0; j < points.size(); j++)
+				{
+					Point c = points.get(j);
+
+					outBitmap.setRGB((int)c.x, (int)c.y, 0xFFFFFF);
+				}
+				ImageIO.write(outBitmap, "BMP", new File("hm-postImprove-"+i+".bmp"));
+			} catch (IOException e) {e.printStackTrace();}
+			
+			try 
+			{
+				BufferedImage outBitmap = new BufferedImage(640,640,BufferedImage.TYPE_INT_RGB);
+				Graphics2D g = (Graphics2D) outBitmap.getGraphics();
+				g.setColor(Color.gray);
+				int failedcount = 0;
+				for(int j = 0; j < voronoi.getEdges().size(); j++)
+				{
+					jMapGen.com.nodename.Delaunay.Edge e = voronoi.getEdges().get(j);
+					if(e.getRightVertex() != null && e.getLeftVertex() != null)
+						g.drawLine((int)e.getLeftVertex().getX(), (int)e.getLeftVertex().getY(), (int)e.getRightVertex().getX(), (int)e.getRightVertex().getY());
+					else
+					{
+						failedcount++;
+						System.out.println("Failed to create:" + e.toString());
+					}
+				}
+				g.setColor(Color.RED);
+				for(int j = 0; j < this.centers.size(); j++)
+				{
+					Center c = centers.get(j);
+					g.drawRect((int)c.point.x, (int)c.point.y, (int)1, (int)1);
+				}
+				System.out.println("Failed to create lines count:" + failedcount++ + "/"+voronoi.getEdges().size());
+				ImageIO.write(outBitmap, "BMP", new File("hm-edgesImproved.bmp"));
+			} catch (IOException e) {e.printStackTrace();}
+			
 			voronoi = null;
 		}
-		
+		System.out.println("Finished improveRandomPoints...");
 	}
 
 
@@ -247,6 +293,7 @@ public class Map
 	// polygons tend to be more uniform after this step.
 	public void improveCorners() 
 	{
+		System.out.println("Starting improveCorners...");
 		Vector<Point> newCorners = new Vector<Point>(corners.size());
 
 		Corner q; 
@@ -291,6 +338,7 @@ public class Map
 				edge.midpoint = Point.interpolate(edge.v0.point, edge.v1.point, 0.5);
 			}
 		}
+		System.out.println("Finished improveCorners...");
 	}
 
 
@@ -328,9 +376,12 @@ public class Map
 
 		Vector<jMapGen.com.nodename.Delaunay.Edge> libedges = voronoi.getEdges();
 		HashMap<Point, Center> centerLookup = new HashMap<Point, Center>();
+		
+		System.out.println("Starting buildGraph...");
 
 		// Build Center objects for each of the points, and a lookup map
 		// to find those Center objects again as we build the graph
+		System.out.println("Building Centers from " + points.size() + " total Points");
 		for(int i = 0; i < points.size(); i++) 
 		{
 			point = points.get(i);
@@ -346,8 +397,10 @@ public class Map
 
 		// Workaround for Voronoi lib bug: we need to call region()
 		// before Edges or neighboringSites are available
+		System.out.println("Calling region() " + centers.size() + " times for Voronoi lib bug fix.");
 		for(int i = 0; i < centers.size(); i++) 
 		{
+			System.out.println("Calling region() " + i + " time.");
 			p = centers.get(i);
 			voronoi.region(p.point);
 		}
@@ -360,6 +413,7 @@ public class Map
 		// Corner object.
 		Vector<Vector<Corner>> _cornerMap = new Vector<Vector<Corner>>();
 
+		System.out.println("Delaunay Edges Size:" + libedges.size());
 		for(int i = 0; i < libedges.size(); i++) 
 		{
 			jMapGen.com.nodename.Delaunay.Edge libedge = libedges.get(i);
@@ -426,6 +480,8 @@ public class Map
 				addToCenterList(edge.v1.touches, edge.d1);
 			}
 		}
+		
+		System.out.println("Finished buildGraph...");
 	}
 
 	public Corner makeCorner(Point point, Vector<Vector<Corner>> _cornerMap) 

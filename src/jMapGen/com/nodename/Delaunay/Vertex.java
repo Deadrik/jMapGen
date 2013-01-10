@@ -5,7 +5,7 @@ import java.util.Vector;
 import jMapGen.Point;
 
 	
-	class Vertex implements ICoord
+	public class Vertex implements ICoord
 	{
 		static final Vertex VERTEX_AT_INFINITY = new Vertex(Double.NaN, Double.NaN);
 		

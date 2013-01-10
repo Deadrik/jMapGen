@@ -68,8 +68,10 @@ public class EdgeReorderer
 		done.set(i, true);
 		++nDone;
 
+		int loops = 0;
 		while (nDone < n)
 		{
+			loops++;
 			for (i = 1; i < n; ++i)
 			{
 				if (done.get(i))
@@ -77,12 +79,15 @@ public class EdgeReorderer
 					continue;
 				}
 				edge = origEdges.get(i);
+				
 				ICoord leftPoint = (criterion == Vertex.class) ? edge._leftVertex : edge.getLeftSite();
 				ICoord rightPoint = (criterion == Vertex.class) ? edge._rightVertex : edge.getRightSite();
+				
 				if (leftPoint == Vertex.VERTEX_AT_INFINITY || rightPoint == Vertex.VERTEX_AT_INFINITY)
 				{
 					return new Vector<Edge>();
 				}
+				
 				if (leftPoint == lastPoint)
 				{
 					lastPoint = rightPoint;
@@ -115,6 +120,11 @@ public class EdgeReorderer
 				{
 					++nDone;
 				}
+			}
+			
+			if (loops > n)
+			{
+				break;
 			}
 		}
 

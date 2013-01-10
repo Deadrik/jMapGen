@@ -23,23 +23,17 @@ import java.util.Vector;
 public class Voronoi
 {
 	private SiteList _sites;
-	private HashMap<Point, Site> _sitesIndexedByLocation;
+	private HashMap<Point, Site> _siteMap;
 	private Vector<Triangle> _triangles;
 	private Vector<Edge> _edges;
-
-
-	// TODO generalize this so it doesn't have to be a rectangle;
-	// then we can make the fractal voronois-within-voronois
 	private Rectangle _plotBounds;
-	public Rectangle getPlotBounds()
-	{
-		return _plotBounds;
-	}
+	private static Site bottomMostSite = null;
+	
 
 	public Voronoi(Vector<Point> points, Rectangle plotBounds)
 	{
 		_sites = new SiteList();
-		_sitesIndexedByLocation = new HashMap<Point, Site>();
+		_siteMap = new HashMap<Point, Site>();
 		addSites(points);
 		_plotBounds = plotBounds;
 		_triangles = new Vector<Triangle>();
@@ -60,17 +54,22 @@ public class Voronoi
 	{
 		Site site = Site.create(p, index);
 		_sites.push(site);
-		_sitesIndexedByLocation.put(p, site);
+		_siteMap.put(p, site);
 	}
 
 	public Vector<Edge> getEdges()
 	{
 		return _edges;
 	}
+	
+	public Rectangle getPlotBounds()
+	{
+		return _plotBounds;
+	}
 
 	public Vector<Point> region(Point p)
 	{
-		Site site = _sitesIndexedByLocation.get(p);
+		Site site = _siteMap.get(p);
 		if (site == null)
 		{
 			return new Vector<Point>();
@@ -82,7 +81,7 @@ public class Voronoi
 	public Vector<Point> neighborSitesForSite(Point coord)
 	{
 		Vector<Point> points = new Vector<Point>();
-		Site site = _sitesIndexedByLocation.get(coord);
+		Site site = _siteMap.get(coord);
 		if (site == null)
 		{
 			return points;
@@ -96,113 +95,17 @@ public class Voronoi
 		return points;
 	}
 
-	public Vector<Circle> circles()
-	{
-		return _sites.circles();
-	}
-
-//	public Vector<LineSegment> voronoiBoundaryForSite(Point coord)
-//	{
-//		return visibleLineSegments(selectEdgesForSitePoint(coord, _edges));
-//	}
-//
-//	public Vector<LineSegment> delaunayLinesForSite(Point coord)
-//	{
-//		return delaunayLinesForEdges(selectEdgesForSitePoint(coord, _edges));
-//	}
-//
-//	public Vector<LineSegment> voronoiDiagram()
-//	{
-//		return visibleLineSegments(_edges);
-//	}
-
-	//			public Vector<LineSegment> delaunayTriangulation(BitmapData keepOutMask)
-	//			{
-	//				return delaunayLinesForEdges(selectNonIntersectingEdges(keepOutMask, _edges));
-	//			}
-
-//	public Vector<LineSegment> hull()
-//	{
-//		return delaunayLinesForEdges(hullEdges());
-//	}
-
-	private Vector<Edge> hullEdges()
-	{
-		Vector<Edge> outEdges = new Vector<Edge>();
-		for(int iter = 0; iter < _edges.size(); iter++)
-		{
-			if(_edges.get(iter).isPartOfConvexHull())
-				outEdges.add(_edges.get(iter));
-		}
-		return outEdges;
-	}
-
-	public Vector<Point> hullPointsInOrder()
-	{
-		Vector<Edge> hullEdges = hullEdges();
-
-		Vector<Point> points = new Vector<Point>();
-		if (hullEdges.size() == 0)
-		{
-			return points;
-		}
-
-		EdgeReorderer reorderer = null;
-		try {
-			reorderer = new EdgeReorderer(hullEdges, Site.class);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		hullEdges = reorderer.getEdges();
-		Vector<LR> orientations = reorderer.getEdgeOrientations();
-		reorderer.dispose();
-
-		LR orientation;
-
-		int n = hullEdges.size();
-		for (int i = 0; i < n; ++i)
-		{
-			Edge edge = hullEdges.get(i);
-			orientation = orientations.get(i);
-			points.add(edge.site(orientation).getCoord());
-		}
-		return points;
-	}
-
-	//			public function spanningTree(type:String = "minimum", keepOutMask:BitmapData = null):Vector.<LineSegment>
-	//			{
-	//				var edges:Vector.<Edge> = selectNonIntersectingEdges(keepOutMask, _edges);
-	//			var segments:Vector.<LineSegment> = delaunayLinesForEdges(edges);
-	//			return kruskal(segments, type);
-	//			}
-
 	public Vector<Vector<Point>> regions()
 	{
 		return _sites.regions(_plotBounds);
 	}
 
 
-	/**
-	 * 
-	 * @param proximityMap a BitmapData whose regions are filled with the site index values; see PlanePointsCanvas::fillRegions()
-	 * @param x
-	 * @param y
-	 * @return coordinates of nearest Site to (x, y)
-	 * 
-	 */
-	//			public function nearestSitePoint(proximityMap:BitmapData, x:Number, y:Number):Point
-	//			{
-	//				return _sites.nearestSitePoint(proximityMap, x, y);
-	//			}
-
 	public Vector<Point> siteCoords()
 	{
 		return _sites.siteCoords();
 	}
 	
-	private static Site bottomMostSite = null;
-
 	private void fortunesAlgorithm()
 	{
 		Site newSite, bottomSite, topSite, tempSite;
@@ -355,7 +258,7 @@ public class Voronoi
 		return edge.site(he.leftRight);
 	}
 
-	public static  Site rightRegion(Halfedge he)
+	public static Site rightRegion(Halfedge he)
 	{
 		Edge edge = he.edge;
 		if (edge == null)
