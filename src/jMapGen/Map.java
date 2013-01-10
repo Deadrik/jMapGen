@@ -4,12 +4,17 @@
 package jMapGen;
 
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Vector;
+
+import javax.imageio.ImageIO;
 
 import jMapGen.com.nodename.Delaunay.DelaunayUtil;
 import jMapGen.com.nodename.Delaunay.Voronoi;
@@ -69,14 +74,27 @@ public class Map
 		setup();
 		//Generate the initial random set of points
 		points = generateRandomPoints();
-		improveRandomPoints(points);
+		
+		try 
+		{
+			BufferedImage outBitmap = new BufferedImage(640,640,BufferedImage.TYPE_INT_RGB);
+			for(int j = 0; j < points.size(); j++)
+			{
+				Point c = points.get(j);
 
+				outBitmap.setRGB((int)c.x, (int)c.y, 0xFFFFFF);
+			}
+			ImageIO.write(outBitmap, "BMP", new File("hm-initial.bmp"));
+		} catch (IOException e) {e.printStackTrace();}
+		
+		improveRandomPoints(points);
+/*
 		Rectangle R = new Rectangle();
 		R.setFrame(0, 0, SIZE, SIZE);
 		Voronoi voronoi = new Voronoi(points, R);
 		
 		buildGraph(points, voronoi);
-		/*
+		
 		improveCorners();
 
 		// Determine the elevations and water at Voronoi corners.
@@ -183,6 +201,19 @@ public class Map
 			Rectangle R = new Rectangle();
 			R.setFrame(0, 0, SIZE, SIZE);
 			voronoi = new Voronoi(points ,R);
+			
+			
+			try 
+			{
+				BufferedImage outBitmap = new BufferedImage(640,640,BufferedImage.TYPE_INT_RGB);
+				for(int j = 0; j < points.size(); j++)
+				{
+					Point c = points.get(j);
+
+					outBitmap.setRGB((int)c.x, (int)c.y, 0xFFFFFF);
+				}
+				ImageIO.write(outBitmap, "BMP", new File("hm-postVornoi-"+i+".bmp"));
+			} catch (IOException e) {e.printStackTrace();}
 
 			for(int ind = 0; ind < points.size(); ind++)  
 			{
@@ -200,7 +231,9 @@ public class Map
 				p.y /= region.size();
 				//region.splice(0, region.size());
 			}
+			voronoi = null;
 		}
+		
 	}
 
 
@@ -228,7 +261,7 @@ public class Map
 			q = corners.get(ind);
 			if (q.border) 
 			{
-				newCorners.set(q.index, q.point);
+				DelaunayUtil.setAtPosition(newCorners, q.index, q.point);
 			} else {
 				point = new Point(0.0, 0.0);
 				for(int ind2 = 0; ind2 < centers.size(); ind2++)  
@@ -239,7 +272,7 @@ public class Map
 				}
 				point.x /= q.touches.size();
 				point.y /= q.touches.size();
-				newCorners.set(q.index, point);
+				DelaunayUtil.setAtPosition(newCorners, q.index, point);
 			}
 		}
 
@@ -405,7 +438,7 @@ public class Map
 		for (bucket = (int) ((point.x)-1); bucket <= (int)((point.x)+1) && bucket >= 0; bucket++) 
 		{
 			Vector<Corner> cornermap = (Vector<Corner>) DelaunayUtil.getAtPosition(_cornerMap, bucket);
-			for(int i = 0; i < cornermap.size(); i++) 
+			for(int i = 0; cornermap != null && i < cornermap.size(); i++) 
 			{
 				q = cornermap.get(i);
 				double dx = point.x - q.point.x;
@@ -416,6 +449,7 @@ public class Map
 				}
 			}
 		}
+		
 		bucket = (int)(point.x);
 		if (bucket >= 0 && _cornerMap.size() > bucket && _cornerMap.get(bucket) != null) 
 		{

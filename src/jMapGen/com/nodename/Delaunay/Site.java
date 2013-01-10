@@ -50,6 +50,7 @@ import java.util.Vector;
 		@Override
 		public int compare(Site s1, Site s2)
 		{
+			
 			int returnValue = Voronoi.compareByYThenX(s1, s2);
 			
 			// swap _siteIndex values if necessary to match new ordering:

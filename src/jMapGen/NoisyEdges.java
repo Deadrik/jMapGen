@@ -7,6 +7,7 @@ package jMapGen;
 import java.util.Random;
 import java.util.Vector;
 
+import jMapGen.com.nodename.Delaunay.DelaunayUtil;
 import jMapGen.graph.Center;
 import jMapGen.graph.Edge;
 
@@ -34,7 +35,7 @@ public class NoisyEdges
 			{
 				edge = p.borders.get(j);
 
-				if (edge.d0 != null && edge.d1 != null && edge.v0 != null && edge.v1 != null && path0.get(edge.index) != null) 
+				if (edge.d0 != null && edge.d1 != null && edge.v0 != null && edge.v1 != null && DelaunayUtil.getAtPosition(path0, edge.index) == null) 
 				{
 					double f = NOISY_LINE_TRADEOFF;
 					Point t = Point.interpolate(edge.v0.point, edge.d0.point, f);
@@ -46,10 +47,10 @@ public class NoisyEdges
 					if (edge.d0.biome != edge.d1.biome) minLength = 3;
 					if (edge.d0.ocean && edge.d1.ocean) minLength = 100;
 					if (edge.d0.coast || edge.d1.coast) minLength = 1;
-					if (edge.river == 1 || lava.lava.get(edge.index) != null) minLength = 1;
+					//if (edge.river == 1 || lava.lava.get(edge.index) != null) minLength = 1;
 
-					path0.set(edge.index, buildNoisyLineSegments(random, edge.v0.point, t, edge.midpoint, q, minLength));
-					path1.set(edge.index, buildNoisyLineSegments(random, edge.v1.point, s, edge.midpoint, r, minLength));
+					DelaunayUtil.setAtPosition(path0, edge.index, buildNoisyLineSegments(random, edge.v0.point, t, edge.midpoint, q, minLength));
+					DelaunayUtil.setAtPosition(path1, edge.index, buildNoisyLineSegments(random, edge.v1.point, s, edge.midpoint, r, minLength));
 				}
 			}
 		}
@@ -61,9 +62,6 @@ public class NoisyEdges
 	static public Vector<Point> buildNoisyLineSegments(Random random, Point A, Point B, Point C, Point D, double minLength) 
 	{
 		Vector<Point> points = new Vector<Point>();
-
-
-
 		points.add(A);
 		subdivide(random, A, B, C, D, minLength, points);
 		points.add(C);

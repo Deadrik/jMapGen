@@ -4,6 +4,7 @@ import jMapGen.Point;
 import jMapGen.com.nodename.geom.Circle;
 
 import java.awt.Rectangle;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Vector;
 
@@ -52,7 +53,7 @@ import java.util.Vector;
 
 		public Rectangle getSitesBounds()
 		{
-			if (_sorted == false)
+			if (_sorted == false && _sites != null)
 			{
 				Collections.sort(_sites, new Site());
 				_currentIndex = 0;

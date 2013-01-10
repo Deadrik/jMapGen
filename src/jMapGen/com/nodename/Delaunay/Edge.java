@@ -48,7 +48,7 @@ public class Edge implements  Comparator<Edge>
 		Edge edge = Edge.create();
 
 		edge.setLeftSite(site0);
-		edge.setLeftSite(site1);
+		edge.setRightSite(site1);
 		site0.addEdge(edge);
 		site1.addEdge(edge);
 

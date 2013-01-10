@@ -52,16 +52,24 @@ public class DelaunayUtil
 	{
 		if(index > v.size())
 		{
-			v.ensureCapacity(index);
+			v.setSize(index+1);
 		}
 		v.add(index, value);
+	}
+	
+	public static int unshiftArray(Vector v, Object value)
+	{
+		Vector n = new Vector();
+		n.add(value);
+		n.addAll(v);
+		return n.size();
 	}
 	
 	public static Object getAtPosition(Vector v, int index)
 	{
 		if(index > v.size())
 		{
-			v.ensureCapacity(index+1);
+			v.setSize(index+1);
 		}
 		try
 		{

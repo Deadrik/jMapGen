@@ -24,8 +24,9 @@ public class mapgen2
 	public NoisyEdges noisyEdges;
 
 
-	public mapgen2() 
+	public mapgen2(int s) 
 	{
+		islandSeedInitial = s;
 		map = new Map(SIZE, islandSeedInitial);
 		go();
 	}
@@ -42,7 +43,7 @@ public class mapgen2
 		//roads = new Roads();
 		lava = new Lava();
 		watersheds = new Watersheds();
-		noisyEdges = new NoisyEdges();
+		//noisyEdges = new NoisyEdges();
 
 		newIsland();
 
@@ -52,7 +53,7 @@ public class mapgen2
 		//roads.createRoads(map);
 		// lava.createLava(map, map.mapRandom.nextDouble);
 		watersheds.createWatersheds(map);
-		noisyEdges.buildNoisyEdges(map, lava, map.mapRandom);
+		//noisyEdges.buildNoisyEdges(map, lava, map.mapRandom);
 	}
 
 }

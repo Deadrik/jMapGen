@@ -10,10 +10,10 @@ public class Corner
 	public int index;
 
 	public Point point;  // location
-	public Boolean ocean;  // ocean
-	public Boolean water;  // lake or ocean
-	public Boolean coast;  // touches ocean and land polygons
-	public Boolean border;  // at the edge of the map
+	public Boolean ocean = false;  // ocean
+	public Boolean water = false;  // lake or ocean
+	public Boolean coast = false;  // touches ocean and land polygons
+	public Boolean border = false;  // at the edge of the map
 	public double elevation;  // 0.0-1.0
 	public double moisture;  // 0.0-1.0
 

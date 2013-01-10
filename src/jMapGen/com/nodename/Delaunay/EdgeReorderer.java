@@ -94,14 +94,14 @@ public class EdgeReorderer
 				{
 					firstPoint = leftPoint;
 					_edgeOrientations.add(0, LR.LEFT);
-					newEdges.add(0, edge);
+					DelaunayUtil.unshiftArray(newEdges, edge);
 					done.set(i, true);
 				}
 				else if (leftPoint == firstPoint)
 				{
 					firstPoint = rightPoint;
 					_edgeOrientations.add(0, LR.RIGHT);
-					newEdges.add(0, edge);
+					DelaunayUtil.unshiftArray(newEdges, edge);
 					done.set(i, true);
 				}
 				else if (rightPoint == lastPoint)
