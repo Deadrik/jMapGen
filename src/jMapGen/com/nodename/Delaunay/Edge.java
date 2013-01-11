@@ -24,9 +24,10 @@ public class Edge implements  Comparator<Edge>
 	 * @param site0
 	 * @param site1
 	 * @return 
+	 * @throws Exception 
 	 * 
 	 */
-	static Edge createBisectingEdge(Site site0, Site site1)
+	public static Edge createBisectingEdge(Site site0, Site site1)
 	{
 		double dx, dy, absdx, absdy;
 		double a, b, c;
@@ -49,6 +50,7 @@ public class Edge implements  Comparator<Edge>
 
 		edge.setLeftSite(site0);
 		edge.setRightSite(site1);
+		
 		site0.addEdge(edge);
 		site1.addEdge(edge);
 
@@ -66,7 +68,8 @@ public class Edge implements  Comparator<Edge>
 		Edge edge;
 		if (_pool.size() > 0)
 		{
-			edge = _pool.firstElement();
+			edge = _pool.lastElement();
+			_pool.remove(_pool.size()-1);
 			edge.init();
 		}
 		else

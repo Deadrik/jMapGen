@@ -24,7 +24,9 @@ public class Site implements ICoord, Comparator<Site>
 	{
 		if (_pool.size() > 0)
 		{
-			return _pool.firstElement().init(p, index);
+			Site site = _pool.lastElement().init(p, index);
+			_pool.remove(_pool.size()-1);
+			return site;
 		}
 		else
 		{

@@ -218,6 +218,15 @@ public class Voronoi
 				halfEdges.add(bisector);
 				edgeList.insert(llbnd, bisector);
 				edge.setVertex(LR.other(leftRight), v);
+				
+				if(edge._leftVertex == null || edge._rightVertex == null)
+					try {
+						throw new Exception();
+					} catch (Exception e) 
+					{
+						
+					}
+				
 				if ((vertex = Vertex.intersect(llbnd, bisector)) != null)
 				{
 					vertices.add(vertex);

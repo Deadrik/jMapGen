@@ -18,7 +18,10 @@ import jMapGen.Point;
 			}
 			if (_pool.size() > 0)
 			{
-				return _pool.firstElement().init(x, y);
+				Vertex v = _pool.lastElement();
+				_pool.remove(_pool.size()-1);
+				v.init(x,y);
+				return v;
 			}
 			else
 			{

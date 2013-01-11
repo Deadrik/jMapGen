@@ -11,7 +11,9 @@ import jMapGen.Point;
 		{
 			if (_pool.size() > 0)
 			{
-				return _pool.firstElement();
+				Halfedge he = _pool.lastElement().init(edge,lr);
+				_pool.remove(_pool.size()-1);
+				return he;
 			}
 			else
 			{
@@ -36,10 +38,16 @@ import jMapGen.Point;
 
 		public Halfedge(Edge edge, LR lr)
 		{
+			init(edge,lr);
+		}
+		
+		private Halfedge init(Edge edge, LR lr)
+		{
 			this.edge = edge;
 			leftRight = lr;
 			nextInPriorityQueue = null;
 			vertex = null;
+			return this;
 		}
 		
 		public String toString()
