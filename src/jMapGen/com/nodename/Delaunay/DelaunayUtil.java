@@ -54,7 +54,7 @@ public class DelaunayUtil
 		{
 			v.setSize(index+1);
 		}
-		v.add(index, value);
+		v.set(index, value);
 	}
 	
 	public static int unshiftArray(Vector v, Object value)

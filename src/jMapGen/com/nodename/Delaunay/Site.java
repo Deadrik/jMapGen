@@ -1,6 +1,9 @@
 package jMapGen.com.nodename.Delaunay;
 
 import jMapGen.Point;
+import jMapGen.com.nodename.geom.Polygon;
+import jMapGen.com.nodename.geom.Winding;
+
 import java.awt.Rectangle;
 import java.util.Collections;
 import java.util.Comparator;
@@ -74,7 +77,7 @@ public class Site implements ICoord, Comparator<Site>
 	}
 
 
-	private static final double EPSILON = .005;
+	private static final double EPSILON = 0.005;
 	private static boolean closeEnough(Point p0, Point p1)
 	{
 		return Point.distance(p0, p1) < EPSILON;
@@ -172,6 +175,10 @@ public class Site implements ICoord, Comparator<Site>
 		{ 
 			reorderEdges();
 			_region = clipToBounds(clippingBounds);
+			if ((new Polygon(_region)).winding() == Winding.CLOCKWISE)
+			{
+				_region = reverseVector(_region);
+			}
 		}
 		return _region;
 	}
@@ -179,7 +186,7 @@ public class Site implements ICoord, Comparator<Site>
 	Vector<Point> reverseVector(Vector<Point> v0)
 	{
 		Vector<Point> v1 = new Vector<Point>();
-		for(int iter = 0; iter < v0.size(); iter++)
+		for(int iter = v0.size()-1; iter >= 0; iter--)
 		{
 			v1.add(v0.get(iter));
 		}
@@ -189,15 +196,13 @@ public class Site implements ICoord, Comparator<Site>
 
 	private void reorderEdges()
 	{
-		//trace("_edges:", _edges);
-		EdgeReorderer reorderer = null;
 		try {
-			reorderer = new EdgeReorderer(_edges, Vertex.class);
+			EdgeReorderer reorderer = new EdgeReorderer(_edges, Vertex.class);
 			_edges = reorderer.getEdges();
-			//trace("reordered:", _edges);
+
 			_edgeOrientations = reorderer.getEdgeOrientations();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		}
 

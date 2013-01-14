@@ -35,22 +35,22 @@ public class NoisyEdges
 			{
 				edge = p.borders.get(j);
 
-				if (edge.d0 != null && edge.d1 != null && edge.v0 != null && edge.v1 != null && DelaunayUtil.getAtPosition(path0, edge.index) == null) 
+				if (edge.dCenter0 != null && edge.dCenter1 != null && edge.vCorner0 != null && edge.vCorner1 != null && DelaunayUtil.getAtPosition(path0, edge.index) == null) 
 				{
 					double f = NOISY_LINE_TRADEOFF;
-					Point t = Point.interpolate(edge.v0.point, edge.d0.point, f);
-					Point q = Point.interpolate(edge.v0.point, edge.d1.point, f);
-					Point r = Point.interpolate(edge.v1.point, edge.d0.point, f);
-					Point s = Point.interpolate(edge.v1.point, edge.d1.point, f);
+					Point t = Point.interpolate(edge.vCorner0.point, edge.dCenter0.point, f);
+					Point q = Point.interpolate(edge.vCorner0.point, edge.dCenter1.point, f);
+					Point r = Point.interpolate(edge.vCorner1.point, edge.dCenter0.point, f);
+					Point s = Point.interpolate(edge.vCorner1.point, edge.dCenter1.point, f);
 
 					int minLength = 10;
-					if (edge.d0.biome != edge.d1.biome) minLength = 3;
-					if (edge.d0.ocean && edge.d1.ocean) minLength = 100;
-					if (edge.d0.coast || edge.d1.coast) minLength = 1;
+					if (edge.dCenter0.biome != edge.dCenter1.biome) minLength = 3;
+					if (edge.dCenter0.ocean && edge.dCenter1.ocean) minLength = 100;
+					if (edge.dCenter0.coast || edge.dCenter1.coast) minLength = 1;
 					//if (edge.river == 1 || lava.lava.get(edge.index) != null) minLength = 1;
 
-					DelaunayUtil.setAtPosition(path0, edge.index, buildNoisyLineSegments(random, edge.v0.point, t, edge.midpoint, q, minLength));
-					DelaunayUtil.setAtPosition(path1, edge.index, buildNoisyLineSegments(random, edge.v1.point, s, edge.midpoint, r, minLength));
+					DelaunayUtil.setAtPosition(path0, edge.index, buildNoisyLineSegments(random, edge.vCorner0.point, t, edge.midpoint, q, minLength));
+					DelaunayUtil.setAtPosition(path1, edge.index, buildNoisyLineSegments(random, edge.vCorner1.point, s, edge.midpoint, r, minLength));
 				}
 			}
 		}

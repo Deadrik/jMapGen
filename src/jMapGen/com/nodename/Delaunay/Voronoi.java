@@ -18,6 +18,7 @@ import jMapGen.com.nodename.geom.Circle;
 
 import java.awt.Rectangle;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Vector;
 
 public class Voronoi
@@ -28,7 +29,7 @@ public class Voronoi
 	private Vector<Edge> _edges;
 	private Rectangle _plotBounds;
 	private static Site bottomMostSite = null;
-	
+
 
 	public Voronoi(Vector<Point> points, Rectangle plotBounds)
 	{
@@ -61,7 +62,7 @@ public class Voronoi
 	{
 		return _edges;
 	}
-	
+
 	public Rectangle getPlotBounds()
 	{
 		return _plotBounds;
@@ -95,17 +96,11 @@ public class Voronoi
 		return points;
 	}
 
-	public Vector<Vector<Point>> regions()
-	{
-		return _sites.regions(_plotBounds);
-	}
-
-
 	public Vector<Point> siteCoords()
 	{
 		return _sites.siteCoords();
 	}
-	
+
 	private void fortunesAlgorithm()
 	{
 		Site newSite, bottomSite, topSite, tempSite;
@@ -218,15 +213,15 @@ public class Voronoi
 				halfEdges.add(bisector);
 				edgeList.insert(llbnd, bisector);
 				edge.setVertex(LR.other(leftRight), v);
-				
+
 				if(edge._leftVertex == null || edge._rightVertex == null)
 					try {
 						throw new Exception();
 					} catch (Exception e) 
 					{
-						
+
 					}
-				
+
 				if ((vertex = Vertex.intersect(llbnd, bisector)) != null)
 				{
 					vertices.add(vertex);
@@ -248,6 +243,16 @@ public class Voronoi
 				break;
 			}
 		}
+		
+		for(Iterator<Edge> iter = _edges.iterator(); iter.hasNext();)
+		{
+			edge = iter.next();
+			edge.clipVertices(_plotBounds);
+			if(!edge.getVisible())
+			{
+				iter.remove();
+			}
+		}
 
 		// we need the vertices to clip the edges
 		for(int i = 0; i < _edges.size(); i++)
@@ -256,7 +261,7 @@ public class Voronoi
 			edge.clipVertices(_plotBounds);
 		}
 	}
-	
+
 	public static Site leftRegion(Halfedge he)
 	{
 		Edge edge = he.edge;
@@ -277,22 +282,22 @@ public class Voronoi
 		return edge.site(LR.other(he.leftRight));
 	}
 
-	public static int compareByYThenX(Site s1, Site s2)
+	public static int compareByYThenX(Site s1, Object s2)
 	{
-		if (s1.getY() < s2.getY()) return -1;
-		if (s1.getY() > s2.getY()) return 1;
-		if (s1.getX() < s2.getX()) return -1;
-		if (s1.getX() > s2.getX()) return 1;
+		if(s2 instanceof Site)
+		{
+			if (s1.getY() < ((Site)s2).getY()) return -1;
+			if (s1.getY() > ((Site)s2).getY()) return 1;
+			if (s1.getX() < ((Site)s2).getX()) return -1;
+			if (s1.getX() > ((Site)s2).getX()) return 1;
+		}
+		else if(s2 instanceof Point)
+		{
+			if (s1.getY() < ((Point)s2).getY()) return -1;
+			if (s1.getY() > ((Point)s2).getY()) return 1;
+			if (s1.getX() < ((Point)s2).getX()) return -1;
+			if (s1.getX() > ((Point)s2).getX()) return 1;
+		}
 		return 0;
 	}
-	
-	public static int compareByYThenX(Site s1, Point s2)
-	{
-		if (s1.getY() < s2.getY()) return -1;
-		if (s1.getY() > s2.getY()) return 1;
-		if (s1.getX() < s2.getX()) return -1;
-		if (s1.getX() > s2.getX()) return 1;
-		return 0;
-	}
-
 }

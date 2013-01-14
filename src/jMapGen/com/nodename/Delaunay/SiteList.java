@@ -99,55 +99,5 @@ import java.util.Vector;
 			}
 			return coords;
 		}
-
-		/**
-		 * 
-		 * @return the largest circle centered at each site that fits in its region;
-		 * if the region is infinite, return a circle of radius 0.
-		 * 
-		 */
-		public Vector<Circle> circles()
-		{
-			Vector<Circle> circles = new Vector<Circle>();
-		for (int i = 0; i < _sites.size(); ++i)
-		{
-			Site site = _sites.get(i);
-				double radius = 0;
-				Edge nearestEdge = site.nearestEdge();
-				
-				if(!nearestEdge.isPartOfConvexHull() && (radius == nearestEdge.sitesDistance() * 0.5))
-					circles.add(new Circle(site.getX(), site.getY(), radius));
-			}
-			return circles;
-		}
-
-		public Vector<Vector<Point>> regions(Rectangle plotBounds)
-		{
-			Vector<Vector<Point>> regions = new Vector<Vector<Point>>();
-			for (int i = 0; i < _sites.size(); ++i)
-			{
-				Site site = _sites.get(i);
-				regions.add(site.region(plotBounds));
-			}
-			return regions;
-		}
-
-		/**
-		 * 
-		 * @param proximityMap a BitmapData whose regions are filled with the site index values; see PlanePointsCanvas::fillRegions()
-		 * @param x
-		 * @param y
-		 * @return coordinates of nearest Site to (x, y)
-		 * 
-		 */
-//		public function nearestSitePoint(proximityMap:BitmapData, x:Number, y:Number):Point
-//		{
-//			int index = proximityMap.getPixel(x, y);
-//			if (index > _sites.length - 1)
-//			{
-//				return null;
-//			}
-//			return _sites[index].coord;
-//		}
 		
 }

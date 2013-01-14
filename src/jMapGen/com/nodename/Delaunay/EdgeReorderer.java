@@ -98,7 +98,6 @@ public class EdgeReorderer
 				else if (rightPoint == firstPoint)
 				{
 					firstPoint = leftPoint;
-					//_edgeOrientations.add(0, LR.LEFT);
 					DelaunayUtil.unshiftArray(_edgeOrientations, LR.LEFT);
 					DelaunayUtil.unshiftArray(newEdges, edge);
 					done.set(i, true);
@@ -106,7 +105,6 @@ public class EdgeReorderer
 				else if (leftPoint == firstPoint)
 				{
 					firstPoint = rightPoint;
-					//_edgeOrientations.add(0, LR.RIGHT);
 					DelaunayUtil.unshiftArray(_edgeOrientations, LR.RIGHT);
 					DelaunayUtil.unshiftArray(newEdges, edge);
 					done.set(i, true);

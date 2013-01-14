@@ -1,11 +1,13 @@
 package jMapGen.graph;
 
 import jMapGen.Point;
+import jMapGen.com.nodename.Delaunay.Site;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
 
-public class Corner 
+public class Corner
 {
 	public int index;
 
@@ -25,4 +27,13 @@ public class Corner
 	public Corner downslope;  // pointer to adjacent corner most downhill
 	public Corner watershed;  // pointer to coastal corner, or null
 	public int watershed_size;
+	
+	public Corner()
+	{
+		ocean = false;
+		water = false;
+		coast = false;
+		border = false;
+		elevation = Double.MAX_VALUE;
+	}
 }

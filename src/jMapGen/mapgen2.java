@@ -4,6 +4,10 @@
 
 package jMapGen;
 
+import java.awt.Graphics2D;
+
+import za.co.iocom.math.MathUtil;
+
 import jMapGen.graph.Edge;
 
 public class mapgen2
@@ -22,8 +26,18 @@ public class mapgen2
 	public Lava lava;
 	public Watersheds watersheds;
 	public NoisyEdges noisyEdges;
+	
+	public static Graphics2D graphics;
 
 
+	public mapgen2(int s, Graphics2D g) 
+	{
+		islandSeedInitial = s;
+		graphics = g;
+		map = new Map(SIZE, islandSeedInitial);
+		go();
+	}
+	
 	public mapgen2(int s) 
 	{
 		islandSeedInitial = s;

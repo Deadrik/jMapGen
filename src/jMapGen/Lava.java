@@ -24,9 +24,9 @@ public class Lava
 		for(int i = 0; i < map.edges.size(); i++) 
 		{
 			edge = map.edges.get(i);
-			if (edge.river != 1 && !edge.d0.water && !edge.d1.water
-					&& edge.d0.elevation > 0.8 && edge.d1.elevation > 0.8
-					&& edge.d0.moisture < 0.3 && edge.d1.moisture < 0.3
+			if (edge.river != 1 && !edge.dCenter0.water && !edge.dCenter1.water
+					&& edge.dCenter0.elevation > 0.8 && edge.dCenter1.elevation > 0.8
+					&& edge.dCenter0.moisture < 0.3 && edge.dCenter1.moisture < 0.3
 					&& random.nextDouble() < FRACTION_LAVA_FISSURES) 
 			{
 				lava.set(edge.index, true);

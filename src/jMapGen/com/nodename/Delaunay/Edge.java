@@ -19,6 +19,19 @@ public class Edge implements  Comparator<Edge>
 	
 	public static final Edge DELETED = new Edge();
 
+	public int _edgeIndex;
+
+	public Edge()
+	{			
+		_edgeIndex = _nedges++;
+		init();
+	}
+
+	private void init()
+	{	
+		_sites = new Site[2];
+	}
+
 	/**
 	 * This is the only way to create a new Edge 
 	 * @param site0
@@ -202,19 +215,7 @@ public class Edge implements  Comparator<Edge>
 		return _sites[leftRight.value];
 	}
 
-	public int _edgeIndex;
-
-
-	public Edge()
-	{			
-		_edgeIndex = _nedges++;
-		init();
-	}
-
-	private void init()
-	{	
-		_sites = new Site[2];
-	}
+	
 
 	public String toString()
 	{
