@@ -12,7 +12,7 @@ import jMapGen.graph.Edge;
 
 public class mapgen2
 {
-	static public int SIZE = 640;
+	static public int SIZE = 1024;
 
 	// Island shape is controlled by the islandRandom seed and the
 	// type of island. The islandShape function uses both of them to
@@ -62,7 +62,6 @@ public class mapgen2
 		newIsland();
 
 		map.go();
-		map.assignBiomes();
 
 		//roads.createRoads(map);
 		// lava.createLava(map, map.mapRandom.nextDouble);

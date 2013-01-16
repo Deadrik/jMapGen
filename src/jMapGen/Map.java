@@ -45,7 +45,7 @@ public class Map
 
 
 	// Passed in by the caller:
-	public double SIZE;
+	public int SIZE;
 
 	// Island shape is controlled by the islandRandom seed and the
 	// type of island, passed in when we set the island shape. The
@@ -68,7 +68,7 @@ public class Map
 
 	public int seed;
 
-	public Map(double size, int s) 
+	public Map(int size, int s) 
 	{
 		SIZE = size;
 		seed = s;
@@ -77,7 +77,7 @@ public class Map
 	// Random parameters governing the overall shape of the island
 	public void newIsland(int seed) 
 	{
-		islandShape = new IslandShape(seed, 0.8);
+		islandShape = new IslandShape(seed, SIZE, 0.6);
 		mapRandom.setSeed(seed);
 		MathUtil.random = mapRandom;
 
@@ -96,7 +96,7 @@ public class Map
 
 		double[] radii = {4};	
 		double[] minRadii = {2};	
-		double[] minDist = {10};
+		double[] minDist = {15};
 
 		PoissonDiskMultiSampler sampler = new PoissonDiskMultiSampler(10, 10, SIZE-10, SIZE-10, minDist, minRadii, radii, null, true);
 		List<PoissonDiskMultiSampler.Circle>[] pointList = sampler.sample();
@@ -1115,5 +1115,39 @@ public class Map
 	{
 		if (p.ocean) return -1;
 		else return Math.floor(p.elevation*10);
+	}
+	
+	public Center getClosestCenter(Point p)
+	{
+		Center closest = centers.get(0);
+		double distance = p.distanceSq(centers.get(0).point);
+		
+		for (int i = 1; i < centers.size(); i++)
+		{
+			double newDist = p.distanceSq(centers.get(i).point);
+			if(newDist < distance)
+			{
+				distance = newDist;
+				closest = centers.get(i);
+			}
+		}
+		return closest;
+	}
+	
+	public Corner getClosestCorner(Point p)
+	{
+		Corner closest = corners.get(0);
+		double distance = p.distanceSq(corners.get(0).point);
+		
+		for (int i = 1; i < corners.size(); i++)
+		{
+			double newDist = p.distanceSq(corners.get(i).point);
+			if(newDist < distance)
+			{
+				distance = newDist;
+				closest = corners.get(i);
+			}
+		}
+		return closest;
 	}
 }

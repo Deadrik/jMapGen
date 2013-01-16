@@ -5,8 +5,11 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Random;
+import java.util.Vector;
 
 import javax.imageio.ImageIO;
+
+import co.janicek.core.math.PerlinNoise;
 
 import net.royawesome.jlibnoise.NoiseQuality;
 import net.royawesome.jlibnoise.model.Plane;
@@ -33,6 +36,7 @@ public class IslandShape
 	double dipWidth;
 	
 	double oceanRatio = 0.5;
+	int SIZE = 1024;
 
 	// The radial island radius is based on overlapping sine waves 
 	static public double ISLAND_FACTOR = 1.07;  // 1.0 means no small islands; 2.0 leads to a lot
@@ -53,8 +57,9 @@ public class IslandShape
 
 
 	// The Perlin-based island combines perlin noise with the radius
-	public IslandShape (int seed, double oceans) 
+	public IslandShape (int seed, int size, double oceans) 
 	{
+		SIZE = size;
 		double landRatioMinimum = 0.1;
 		double landRatioMaximum = 0.5;
 		oceanRatio = ((landRatioMaximum - landRatioMinimum) * oceans) + landRatioMinimum;
@@ -64,7 +69,7 @@ public class IslandShape
 		bumps = 3 + islandRandom.nextInt(6);
 		startAngle = islandRandom.nextDouble() * (2*Math.PI);
 		dipAngle = islandRandom.nextDouble() * (2*Math.PI);
-		dipWidth = 0.2 + islandRandom.nextDouble()*0.5;
+		dipWidth = 0.2 + islandRandom.nextDouble() * 0.5;
 
 		Perlin modulePerl = new Perlin();
 		modulePerl.setSeed(seed);
@@ -74,48 +79,48 @@ public class IslandShape
 		
 		ScaleBias sb = new ScaleBias();
 		sb.setSourceModule(0, modulePerl);
-		sb.setBias(0.6);
-		sb.setScale(1.5);
+		sb.setBias(0.2);
+		sb.setScale(1.2);
 
 		Clamp moduleClamp = new Clamp();
 		moduleClamp.setSourceModule(0, sb);
 		moduleClamp.setLowerBound(0);
 		moduleClamp.setUpperBound(1);
-		
-		Perlin modulePerl2 = new Perlin();
-		modulePerl2.setSeed(seed+1);
-		modulePerl2.setFrequency(0.3);
-		modulePerl2.setOctaveCount(8);
-		modulePerl2.setNoiseQuality(NoiseQuality.BEST);
 
 		module = moduleClamp;
+		perlin = PerlinNoise.makePerlinNoise(SIZE,SIZE,1.0f,1.0f,1.0f,seed,8);
 
-//		try
-//		{
-//			BufferedImage outBitmap = new BufferedImage(640,640,BufferedImage.TYPE_INT_RGB);
-//			Graphics2D g = (Graphics2D) outBitmap.getGraphics();
-//
-//			for(int x = 0; x < 640; x++)
-//			{
-//				for(int z = 0; z < 640; z++)
-//				{
-//					float h = (float) (module.GetValue(x, 0, z));
-//					g.setColor(Color.getHSBColor(0, 0, h));
-//					g.fillRect(x, z, 1, 1);
-//
-//				}
-//			}
-//			ImageIO.write(outBitmap, "BMP", new File("hm-perlin.bmp"));
-//		}
-//		catch(Exception e){e.printStackTrace();}
+		try
+		{
+			BufferedImage outBitmap = new BufferedImage(SIZE,SIZE,BufferedImage.TYPE_INT_RGB);
+			Graphics2D g = (Graphics2D) outBitmap.getGraphics();
+
+			for(int x = 0; x < SIZE; x++)
+			{
+				for(int z = 0; z < SIZE; z++)
+				{
+					float h = (float) (perlin.get(x).get(z))/255;
+					g.setColor(Color.getHSBColor(0, 0, h));
+					g.fillRect(x, z, 1, 1);
+
+				}
+			}
+			ImageIO.write(outBitmap, "BMP", new File("hm-perlin.bmp"));
+		}
+		catch(Exception e){e.printStackTrace();}
+		
+		
 	}
 
 	public Module module;
+	Vector<Vector<Integer>> perlin;
+	
 
 	public boolean insidePerlin(Point q)
 	{
-		Point np = new Point(2*(q.x/640 - 0.5), 2*(q.y/640 - 0.5));
-		double height = (module.GetValue(q.x, 0, q.y))/1;
+		Point np = new Point(2*(q.x/SIZE - 0.5), 2*(q.y/SIZE - 0.5));
+		//double height = (module.GetValue(q.x, 0, q.y))/1;
+		double height = (perlin.get(Math.min((int)Math.floor((np.x+1)*512), 255)).get(Math.min((int)Math.floor((np.y+1)*512), 255)) & 0xff) / 255.0;
 
 		return height > oceanRatio+oceanRatio*np.getLength()*np.getLength();
 	}
@@ -123,7 +128,7 @@ public class IslandShape
 	public double elevPerlin(Point q)
 	{
 		Plane perlin = new Plane(module);
-		Point np = new Point(2*(q.x/640 - 0.5), 2*(q.y/640 - 0.5));
+		Point np = new Point(2*(q.x/SIZE - 0.5), 2*(q.y/SIZE - 0.5));
 		double height = (perlin.getModule().GetValue(q.x, 0, q.y))/1;
 
 		return height;

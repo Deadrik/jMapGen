@@ -36,4 +36,14 @@ public class Corner
 		border = false;
 		elevation = Double.MAX_VALUE;
 	}
+	
+	public Edge getTouchingEdge(Corner c)
+	{
+		for (int i = 0; i < protrudes.size(); i++)
+		{
+			if(protrudes.get(i).vCorner0 == c || protrudes.get(i).vCorner1 == c)
+				return protrudes.get(i);
+		}
+		return null;
+	}
 }
