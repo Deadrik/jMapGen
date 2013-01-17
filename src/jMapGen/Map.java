@@ -180,7 +180,7 @@ public class Map
 
 		// Polygon elevations are the average of their corners
 		assignPolygonElevations();
-		if(mapgen2.graphics != null)
+		if(IslandMapGen.graphics != null)
 		{
 			for(Iterator<Center> i = centers.iterator(); i.hasNext();)
 			{
@@ -188,18 +188,18 @@ public class Map
 
 				if (q.water) 
 				{
-					mapgen2.graphics.setColor(Color.BLUE);
-					mapgen2.graphics.fillRect((int)q.point.x-3, (int)q.point.y-3, 5,5);
+					IslandMapGen.graphics.setColor(Color.BLUE);
+					IslandMapGen.graphics.fillRect((int)q.point.x-3, (int)q.point.y-3, 5,5);
 				}
 				else if (q.coast) 
 				{
-					mapgen2.graphics.setColor(Color.getHSBColor(0.122222f, 0.27f, 0.91f));
-					mapgen2.graphics.fillRect((int)q.point.x-3, (int)q.point.y-3, 5,5);
+					IslandMapGen.graphics.setColor(Color.getHSBColor(0.122222f, 0.27f, 0.91f));
+					IslandMapGen.graphics.fillRect((int)q.point.x-3, (int)q.point.y-3, 5,5);
 				}
 				else
 				{
-					mapgen2.graphics.setColor(Color.getHSBColor(0, 0, Math.max((float)(q.elevation), 0)));
-					mapgen2.graphics.fillRect((int)q.point.x-2, (int)q.point.y-2, 5, 5);
+					IslandMapGen.graphics.setColor(Color.getHSBColor(0, 0, Math.max((float)(q.elevation), 0)));
+					IslandMapGen.graphics.fillRect((int)q.point.x-2, (int)q.point.y-2, 5, 5);
 				}
 			}
 		}

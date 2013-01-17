@@ -10,7 +10,7 @@ import za.co.iocom.math.MathUtil;
 
 import jMapGen.graph.Edge;
 
-public class mapgen2
+public class IslandMapGen
 {
 	static public int SIZE = 1024;
 
@@ -30,44 +30,25 @@ public class mapgen2
 	public static Graphics2D graphics;
 
 
-	public mapgen2(int s, Graphics2D g) 
+	public IslandMapGen(int s, Graphics2D g) 
 	{
 		islandSeedInitial = s;
 		graphics = g;
 		map = new Map(SIZE, islandSeedInitial);
-		go();
 	}
 	
-	public mapgen2(int s) 
+	public IslandMapGen(int s) 
 	{
 		islandSeedInitial = s;
 		map = new Map(SIZE, islandSeedInitial);
-		go();
 	}
 
-
-	// Random parameters governing the overall shape of the island
-	public void newIsland() 
+	public void createNewIsland() 
 	{
-		map.newIsland(islandSeedInitial);
-	}
-
-	public void go() 
-	{
-		//roads = new Roads();
-		lava = new Lava();
 		watersheds = new Watersheds();
-		//noisyEdges = new NoisyEdges();
-
-		newIsland();
-
+		map.newIsland(islandSeedInitial);
 		map.go();
-
-		//roads.createRoads(map);
-		// lava.createLava(map, map.mapRandom.nextDouble);
 		watersheds.createWatersheds(map);
-		//noisyEdges.buildNoisyEdges(map, lava, map.mapRandom);
 	}
-
 }
 
