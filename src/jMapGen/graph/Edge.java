@@ -9,7 +9,7 @@ public class Edge
 	public Center dCenter0, dCenter1;  // Delaunay edge
 	public Corner vCorner0, vCorner1;  // Voronoi edge
 	public Point midpoint;  // halfway between v0,v1
-	public int river;  // volume of water, or 0
+	public int river = 0;  // volume of water, or 0
 	
 	public void setVoronoiEdge(Corner c0, Corner c1)
 	{
@@ -25,6 +25,20 @@ public class Edge
 		{
 			vCorner1.adjacent.add(vCorner0);
 		}
+	}
+	
+	/**
+	 * 
+	 * @param c The Corner that you already have
+	 * @return The opposite corner of the edge. Returns null if you feed it a corner that is not a part of this edge.
+	 */
+	public Corner otherCorner(Corner c)
+	{
+		if(c == vCorner0)
+			return vCorner1;
+		else if(c == vCorner1)
+			return vCorner0;
+		else return null;
 	}
 }
 

@@ -4,8 +4,6 @@
 
 package pythagoras.gwt.pythagoras.util;
 
-import java.util.Arrays;
-
 /**
  * A platform instance that's used when running in GWT. Note that this is copied over top of the
  * JDK implementation in the pythagoras.jar file, so this is never actually compiled to bytecode.

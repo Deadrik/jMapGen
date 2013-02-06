@@ -6,13 +6,10 @@ package jMapGen;
 
 import java.awt.Graphics2D;
 
-import za.co.iocom.math.MathUtil;
-
-import jMapGen.graph.Edge;
-
 public class IslandMapGen
 {
 	static public int SIZE = 1024;
+	public static boolean DEBUG = false;
 
 	// Island shape is controlled by the islandRandom seed and the
 	// type of island. The islandShape function uses both of them to
@@ -35,12 +32,14 @@ public class IslandMapGen
 		islandSeedInitial = s;
 		graphics = g;
 		map = new Map(SIZE, islandSeedInitial);
+		createNewIsland();
 	}
 	
 	public IslandMapGen(int s) 
 	{
 		islandSeedInitial = s;
 		map = new Map(SIZE, islandSeedInitial);
+		createNewIsland();
 	}
 
 	public void createNewIsland() 

@@ -2,7 +2,6 @@ package jMapGen.com.nodename.Delaunay;
 
 import jMapGen.Point;
 
-import java.util.PriorityQueue;
 import java.util.Vector;
 
 

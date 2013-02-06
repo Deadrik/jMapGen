@@ -1,7 +1,6 @@
 package jMapGen;
 
 import java.awt.geom.Point2D;
-import java.util.Vector;
 
 public class Point extends Point2D
 {

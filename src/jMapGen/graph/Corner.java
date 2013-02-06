@@ -1,10 +1,6 @@
 package jMapGen.graph;
 
 import jMapGen.Point;
-import jMapGen.com.nodename.Delaunay.Site;
-
-import java.util.Comparator;
-import java.util.List;
 import java.util.Vector;
 
 public class Corner
@@ -45,5 +41,22 @@ public class Corner
 				return protrudes.get(i);
 		}
 		return null;
+	}
+	
+	public Center getClosestCenter(Point p)
+	{
+		Center closest = null;
+		double distance = 1000000;
+
+		for (Center c : touches)
+		{
+			double newDist = p.distanceSq(c.point);
+			if(newDist < distance)
+			{
+				distance = newDist;
+				closest = c;
+			}
+		}
+		return closest;
 	}
 }

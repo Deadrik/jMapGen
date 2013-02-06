@@ -5,7 +5,6 @@ import jMapGen.com.nodename.geom.LineSegment;
 
 import java.awt.Rectangle;
 import java.util.Comparator;
-import java.util.Dictionary;
 import java.util.Vector;
 /**
  * The line segment connecting the two Sites is part of the Delaunay triangulation;

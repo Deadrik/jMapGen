@@ -2,8 +2,6 @@ package jMapGen.com.nodename.Delaunay;
 
 import jMapGen.Point;
 
-import java.util.Vector;
-
 	
 	public final class EdgeList
 	{

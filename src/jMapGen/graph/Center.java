@@ -4,8 +4,6 @@ import jMapGen.BiomeType;
 import jMapGen.Point;
 import java.util.Vector;
 
-import pythagoras.d.Vector3;
-
 
 public class Center 
 {
@@ -41,6 +39,35 @@ public class Center
 		return closest;
 	}
 
+	public Edge getClosestTriangle(Point local)
+	{
+		Corner closest = corners.get(0);
+
+		pythagoras.d.Vector p = new pythagoras.d.Vector(local.x, local.y);
+		pythagoras.d.Vector a;
+		pythagoras.d.Vector b = new pythagoras.d.Vector(point.x, point.y);
+		pythagoras.d.Vector c;
+
+		for (Corner c0 : corners)
+		{
+			a = new pythagoras.d.Vector(c0.point.x, c0.point.y);
+			for (Corner c1 : corners)
+			{
+				Edge e = c0.getTouchingEdge(c1);
+				if(c0 != c1 && e != null)
+				{
+					c = new pythagoras.d.Vector(c1.point.x, c1.point.y);
+					if(InTriangle(p,a,b,c))
+					{
+						return e;
+					}
+				}
+			}
+		}
+
+		return null;
+	}
+
 	public Corner getNextClosestCorner(Point p)
 	{
 		Corner first = getClosestCorner(p);
@@ -61,13 +88,39 @@ public class Center
 		return closest;
 	}
 
+	public Corner getNextClosestCornerEdge(Point local, Corner first)
+	{
+		Corner closest = first.adjacent.get(0);
+		double distance = Double.MAX_VALUE;
+
+		pythagoras.d.Vector p = new pythagoras.d.Vector(local.x, local.y);
+		pythagoras.d.Vector a = new pythagoras.d.Vector(first.point.x, first.point.y);
+		pythagoras.d.Vector b = new pythagoras.d.Vector(point.x, point.y);
+		pythagoras.d.Vector c;
+
+		for (int i = 0; i < corners.size(); i++)
+		{
+			Corner _corner = corners.get(i);
+			if(_corner.getTouchingEdge(first) != null)
+			{
+				c = new pythagoras.d.Vector(_corner.point.x, _corner.point.y);
+				if(InTriangle(p,a,b,c))
+				{
+					return closest;
+				}
+			}
+		}
+		return closest;
+	}
+
 	public Corner getNextClosestCorner(Point local, Corner first)
 	{
 		Corner closest = first.adjacent.get(0);
+		double distance = Double.MAX_VALUE;
 
 		pythagoras.d.Vector p = new pythagoras.d.Vector(local.x, local.y);
-		pythagoras.d.Vector a = new pythagoras.d.Vector(point.x, point.y);
-		pythagoras.d.Vector b = new pythagoras.d.Vector(first.point.x, first.point.y);
+		pythagoras.d.Vector a = new pythagoras.d.Vector(first.point.x, first.point.y);
+		pythagoras.d.Vector b = new pythagoras.d.Vector(point.x, point.y);
 		pythagoras.d.Vector c;
 
 		for (int i = 0; i < corners.size(); i++)
@@ -76,13 +129,13 @@ public class Center
 			if(_corner != first)
 			{
 				c = new pythagoras.d.Vector(_corner.point.x, _corner.point.y);
-				if(PointInTriangle(p,a,b,c))
+				double dist = local.distanceSq(_corner.point.x, _corner.point.y);
+				if(InTriangle(p,a,b,c) && dist < distance)
 				{
-					return _corner;
+					closest = _corner;
+					distance = dist;
 				}
 			}
-
-
 		}
 		return closest;
 	}
@@ -102,5 +155,29 @@ public class Center
 		if (SameSide(p,a, b,c) && SameSide(p,b, a,c) && SameSide(p,c, a,b)) 
 			return true;
 		else return false;
+	}
+
+	boolean InTriangle(pythagoras.d.Vector p, pythagoras.d.Vector a, pythagoras.d.Vector b, pythagoras.d.Vector c)
+	{
+		// Compute vectors        
+		pythagoras.d.Vector v0 = c.subtract(a);
+		pythagoras.d.Vector v1 = b.subtract(a);
+		pythagoras.d.Vector v2 = p.subtract(a);
+
+		// Compute dot products
+		double dot00 = v0.dot(v0);
+		double dot01 = v0.dot(v1);
+		double dot02 = v0.dot(v2);
+		double dot11 = v1.dot(v1);
+		double dot12 = v1.dot(v2);
+
+		// Compute barycentric coordinates
+		double invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
+		double u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+		double v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+
+		// Check if point is in triangle
+		return (u >= 0) && (v >= 0) && (u + v < 1);
+
 	}
 }

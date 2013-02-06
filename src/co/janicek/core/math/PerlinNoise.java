@@ -1,8 +1,5 @@
 package co.janicek.core.math;
 
-import jMapGen.com.nodename.Delaunay.DelaunayUtil;
-
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Vector;

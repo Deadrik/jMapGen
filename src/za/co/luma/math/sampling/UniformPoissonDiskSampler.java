@@ -6,7 +6,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import za.co.iocom.math.MathUtil;
-import za.co.luma.geom.Vector2DDouble;
 import za.co.luma.geom.Vector2DInt;
 
 /**

@@ -1,10 +1,7 @@
 package jMapGen.com.nodename.Delaunay;
 
 import jMapGen.Point;
-import jMapGen.com.nodename.geom.Circle;
-
 import java.awt.Rectangle;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Vector;
 

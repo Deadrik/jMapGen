@@ -6,7 +6,6 @@ package jMapGen;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.Shape;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -22,12 +21,7 @@ import java.util.Vector;
 import javax.imageio.ImageIO;
 
 import za.co.iocom.math.MathUtil;
-import za.co.luma.math.function.*;
 import za.co.luma.math.sampling.PoissonDiskMultiSampler;
-import za.co.luma.math.sampling.PoissonDiskSampler;
-import za.co.luma.math.sampling.Sampler;
-import za.co.luma.math.sampling.UniformPoissonDiskSampler;
-
 import jMapGen.com.nodename.Delaunay.DelaunayUtil;
 import jMapGen.com.nodename.Delaunay.Voronoi;
 import jMapGen.com.nodename.geom.LineSegment;
@@ -66,6 +60,9 @@ public class Map
 	public Vector<Corner> corners;
 	public Vector<Edge> edges;
 
+
+	public Vector<Corner> riverSources;
+
 	public int seed;
 
 	public Map(int size, int s) 
@@ -87,12 +84,12 @@ public class Map
 
 	public void go() 
 	{
-		setup();
-		//Generate the initial random set of points
-		//points = generateRandomPoints();
 
-		//RealFunction2DWrapper realfn = new RealFunction2DWrapper(new PerlinFunction2D((int)SIZE, (int)SIZE, 3), 0.1f, 1, 0.0001f, 1);
-		//Sampler<Point> sampler = new PoissonDiskSampler(10, 10, SIZE-10, SIZE-10, 10, realfn);
+		points = new Vector<Point>();
+		edges = new Vector<Edge>();
+		centers = new Vector<Center>();
+		corners = new Vector<Corner>();
+		riverSources = new Vector<Corner>();
 
 		double[] radii = {4};	
 		double[] minRadii = {2};	
@@ -114,18 +111,12 @@ public class Map
 
 		}
 
-		//		for(int i = 0; i < pointList.size(); i++)
-		//		{
-		//			points.add(pointList.get(i));
-		//		}
-
 		Rectangle R = new Rectangle();
 		R.setFrame(0, 0, SIZE, SIZE);
-		System.out.println("Starting Creating map Voronoi...");
+		//System.out.println("Starting Creating map Voronoi...");
 		Voronoi voronoi = new Voronoi(points, R);
-		System.out.println("Finished Creating map Voronoi...");
+		//System.out.println("Finished Creating map Voronoi...");
 		buildGraph(points, voronoi);
-
 
 		// Determine the elevations and water at Voronoi corners.
 		assignCornerElevations();
@@ -144,29 +135,6 @@ public class Map
 		// center of a perfectly circular island.
 		redistributeElevations(landCorners(corners));
 
-		for(int i = 0; i < this.corners.size(); i++)
-		{
-			Corner c = corners.get(i);
-
-			//			if(c.water)
-			//			{
-			//				mapgen2.graphics.setColor(Color.BLUE);
-			//				mapgen2.graphics.fillRect((int)c.point.x-3, (int)c.point.y-3, 5,5);
-			//			}
-			//			else if (c.coast) 
-			//			{
-			//				mapgen2.graphics.setColor(Color.getHSBColor(0.122222f, 0.27f, 0.91f));
-			//				mapgen2.graphics.fillRect((int)c.point.x-3, (int)c.point.y-3, 5,5);
-			//			}
-			//			else
-			//			{
-			//				
-			//				mapgen2.graphics.setColor(Color.getHSBColor(0, 0, Math.max((float)(c.elevation), 0)));
-			//				mapgen2.graphics.fillRect((int)c.point.x-2, (int)c.point.y-2, 5, 5);
-			//			}
-		}
-
-
 
 		// Assign elevations to non-land corners
 		for(Iterator<Corner> i = corners.iterator(); i.hasNext();)
@@ -182,9 +150,9 @@ public class Map
 		assignPolygonElevations();
 		if(IslandMapGen.graphics != null)
 		{
-			for(Iterator<Center> i = centers.iterator(); i.hasNext();)
+			for(Iterator<Corner> i = corners.iterator(); i.hasNext();)
 			{
-				Center q = (Center)i.next();
+				Corner q = (Corner)i.next();
 
 				if (q.water) 
 				{
@@ -231,7 +199,8 @@ public class Map
 		// to 1.0. Then assign polygon moisture as the average
 		// of the corner moisture.
 		assignCornerMoisture();
-		redistributeMoisture(landCorners(corners));
+		//redistributeMoisture(landCorners(corners));
+
 		assignPolygonMoisture();
 
 		assignBiomes();
@@ -242,30 +211,22 @@ public class Map
 		try 
 		{
 			System.out.println("Drawing hm-corners-"+suffix+".bmp");
-			BufferedImage outBitmap = new BufferedImage(640,640,BufferedImage.TYPE_INT_RGB);
+			BufferedImage outBitmap = new BufferedImage(1024,1024,BufferedImage.TYPE_INT_RGB);
 			Graphics2D g = (Graphics2D) outBitmap.getGraphics();
+
+			float HSBOne = (1f/360f);
+			float HSBGreen = HSBOne*60;
 			for(int i = 0; i < corners.size(); i++)
 			{
 				Corner c = corners.get(i);
 
-				if(c.elevation < 1)
-					g.setColor(Color.blue);
-				else
-					g.setColor(Color.green);
+
+				g.setColor(Color.getHSBColor(HSBGreen+((float)c.moisture*HSBGreen), 1, 1));
 
 				g.drawRect((int)c.point.x, (int)c.point.y, 1,1);
 			}
 			ImageIO.write(outBitmap, "BMP", new File("hm-corners-"+suffix+".bmp"));
 		} catch (IOException e) {e.printStackTrace();}
-	}
-
-	public void setup() 
-	{
-		// Clear the previous graph data.
-		points = new Vector<Point>();
-		edges = new Vector<Edge>();
-		centers = new Vector<Center>();
-		corners = new Vector<Corner>();
 	}
 
 
@@ -386,11 +347,11 @@ public class Map
 		Vector<jMapGen.com.nodename.Delaunay.Edge> libedges = voronoi.getEdges();
 		HashMap<Point, Center> centerLookup = new HashMap<Point, Center>();
 
-		System.out.println("Starting buildGraph...");
+		//System.out.println("Starting buildGraph...");
 
 		// Build Center objects for each of the points, and a lookup map
 		// to find those Center objects again as we build the graph
-		System.out.println("Building Centers from " + points.size() + " total Points");
+		//System.out.println("Building Centers from " + points.size() + " total Points");
 		for(int i = 0; i < points.size(); i++) 
 		{
 			point = points.get(i);
@@ -406,20 +367,12 @@ public class Map
 
 		// Workaround for Voronoi lib bug: we need to call region()
 		// before Edges or neighboringSites are available
-		System.out.println("Calling region() " + centers.size() + " times for Voronoi lib bug fix.");
 		for(int i = 0; i < centers.size(); i++) 
 		{
-			//System.out.println("Calling region() " + i + " time.");
 			p = centers.get(i);
 			voronoi.region(p.point);
 		}
 
-		//		for(int i = 0; i < voronoi.siteCoords().size(); i++) 
-		//		{
-		//			Point pnt = voronoi.siteCoords().get(i);
-		//			mapgen2.graphics.setColor(Color.GREEN);
-		//			mapgen2.graphics.drawString(""+i, (int)pnt.x, (int)pnt.y);
-		//		}
 
 		// The Voronoi library generates multiple Point objects for
 		// corners, and we need to canonicalize to one Corner object.
@@ -430,7 +383,6 @@ public class Map
 		Vector<Vector<Corner>> _cornerMap = new Vector<Vector<Corner>>();
 		_cornerMap.setSize((int)SIZE);
 
-		System.out.println("Delaunay Edges Size:" + libedges.size());
 		for(int i = 0; i < libedges.size(); i++) 
 		{
 			jMapGen.com.nodename.Delaunay.Edge libedge = libedges.get(i);
@@ -491,7 +443,7 @@ public class Map
 			}
 		}
 
-		System.out.println("Finished buildGraph...");
+		//System.out.println("Finished buildGraph...");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -503,8 +455,8 @@ public class Map
 		if (point == null) 
 			return null;
 
-		int minBucket = (int)(point.x) - 1;
-		int maxBucket = (int)(point.x) + 1;
+		int minBucket = (int)(point.x) - 2;
+		int maxBucket = (int)(point.x) + 2;
 
 		for (bucket = minBucket; bucket <= maxBucket; bucket++) 
 		{
@@ -514,7 +466,7 @@ public class Map
 				q = cornermap.get(i);
 				double dx = point.x - q.point.x;
 				double dy = point.y - q.point.y;
-				if (dx*dx + dy*dy < 1e-6) 
+				if (dx*dx + dy*dy < 1E-1) 
 				{
 					return q;
 				}
@@ -571,17 +523,15 @@ public class Map
 		/**
 		 * First we check each corner to see if it is land or water
 		 * */
-		for(int i = 0; i < corners.size(); i++)
+		for(Corner c : corners)
+			//for(int i = 0; i < corners.size(); i++)
 		{
-			baseCorner = corners.get(i);
-			//mapgen2.graphics.setColor(Color.CYAN);
-			//mapgen2.graphics.drawString(""+baseCorner.index, (int)baseCorner.point.x+2, (int)baseCorner.point.y-3);
-			baseCorner.water = !inside(baseCorner.point);
+			c.water = !inside(c.point);
 
-			if (baseCorner.border) 
+			if (c.border) 
 			{
-				baseCorner.elevation = 0;
-				queue.add(baseCorner);
+				c.elevation = 0;
+				queue.add(c);
 			}
 		}
 
@@ -590,31 +540,12 @@ public class Map
 		 * the border points to a queue which contains all start points for elevation distribution.
 		 */
 
-		for(int i = 0; i < corners.size(); i++)
-		{
-			baseCorner = corners.get(i);
-			// The edges of the map are elevation 0			
-			for(int j = 0; j < baseCorner.protrudes.size(); j++)
-			{
-				Edge e = baseCorner.protrudes.get(j);
-				//				mapgen2.graphics.setColor(Color.DARK_GRAY);
-				//				mapgen2.graphics.drawLine((int)e.vCorner0.point.x, (int)e.vCorner0.point.y, 
-				//						(int)e.vCorner1.point.x, (int)e.vCorner1.point.y);
-			}
-		}
-
 		// Traverse the graph and assign elevations to each point. As we
 		// move away from the map border, increase the elevations. This
 		// guarantees that rivers always have a way down to the coast by
 		// going downhill (no local minima).
 		while (queue.size() > 0) {
 			baseCorner = queue.pollFirst();
-
-			//			mapgen2.graphics.setColor(Color.WHITE);
-			//			mapgen2.graphics.fillRect((int)baseCorner.point.x-1, (int)baseCorner.point.y-1, 3,3);
-
-			numberProcessed++;
-			//mapgen2.graphics.drawString(""+baseCorner.index, (int)baseCorner.point.x+2, (int)baseCorner.point.y-3);
 
 			for(int i = 0; i < baseCorner.adjacent.size(); i++)
 			{
@@ -623,25 +554,10 @@ public class Map
 
 				if(!adjacentCorner.border)
 				{
-					//					mapgen2.graphics.setColor(Color.RED);
-					//					mapgen2.graphics.drawLine((int)baseCorner.point.x, (int)baseCorner.point.y, 
-					//							(int)adjacentCorner.point.x, (int)adjacentCorner.point.y);
-
-					try {
-						//Thread.sleep(50);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-
-					//					mapgen2.graphics.setColor(Color.LIGHT_GRAY);
-					//					mapgen2.graphics.drawLine((int)baseCorner.point.x, (int)baseCorner.point.y, 
-					//							(int)adjacentCorner.point.x, (int)adjacentCorner.point.y);
-
-
 					// Every step up is epsilon over water or 1 over land. The
 					// number doesn't matter because we'll rescale the
 					// elevations later.				
-					double newElevation = 0.01 + baseCorner.elevation;
+					double newElevation = 0.000000001 + baseCorner.elevation;
 
 					if (!baseCorner.water && !adjacentCorner.water) 
 					{
@@ -651,36 +567,13 @@ public class Map
 					// that we can process its neighbors too.
 					if (newElevation < adjacentCorner.elevation) 
 					{
-						//						mapgen2.graphics.setColor(Color.GRAY);
-						//						mapgen2.graphics.drawLine((int)baseCorner.point.x, (int)baseCorner.point.y, 
-						//								(int)adjacentCorner.point.x, (int)adjacentCorner.point.y);
-
 						adjacentCorner.elevation = newElevation;
-
-						if(newElevation > maxElevation)
-							maxElevation = newElevation;
 						queue.add(adjacentCorner);
-
-						numberOfAdjacents++;
-						//						mapgen2.graphics.setColor(Color.GREEN);
-						//						mapgen2.graphics.fillRect((int)adjacentCorner.point.x-1, (int)adjacentCorner.point.y-1, 3,3);
-
-					}
-					else
-					{
-						//						mapgen2.graphics.setColor(Color.WHITE);
-						//						mapgen2.graphics.fillRect((int)adjacentCorner.point.x-1, (int)adjacentCorner.point.y-1, 3,3);
 					}
 				}
 			}
 		}
-		System.out.println("Number of Corners Total: " + corners.size());
-		System.out.println("Number of Corners Processed: " + numberProcessed);
-		System.out.println("Number of Adjacents Added: " + numberOfAdjacents);
 	}
-	private static int numberProcessed = 0;
-	private static int numberOfAdjacents = 0;
-	private static double maxElevation = 0;
 
 	public Vector<Corner> sortElevation(Vector<Corner> locations)
 	{
@@ -955,9 +848,9 @@ public class Map
 		for (i = 0; i < SIZE/6; i++) {
 			q = corners.get(mapRandom.nextInt(corners.size()-1));
 
-			if (q.ocean || q.elevation < 0.3 || q.elevation > 0.9) continue;
+			if (q.ocean || q.elevation < 0.3 || q.elevation > 0.85) continue;
 
-			while (!q.coast) {
+			while (!q.coast && !q.water) {
 				if (q == q.downslope) {
 					break;
 				}
@@ -976,42 +869,36 @@ public class Map
 	// not spread it (we set it at the end, after propagation).
 	public void assignCornerMoisture() 
 	{
-		Corner q, r; 
-		double newMoisture;
-
-		ArrayList<Corner> queue = new ArrayList<Corner>();
+		LinkedList<Corner> queue = new LinkedList<Corner>();
 		// Fresh water
-		for(int j = 0; j < corners.size(); j++)
+		for(Corner cr : corners)
 		{
-			q = corners.get(j);
-			if ((q.water || q.river > 0) && !q.ocean) {
-				q.moisture = q.river > 0? Math.min(3.0, (0.2 * q.river)) : 1.0;
-				queue.add(q);
+			if ((cr.water || cr.river > 0) && !cr.ocean) {
+				cr.moisture = cr.river > 0? Math.min(3.0, (0.2 * (double)cr.river)) : 1.0;
+				queue.push(cr);
 			} else {
-				q.moisture = 0.0;
+				cr.moisture = 0.0;
 			}
 		}
 		while (queue.size() > 0) 
 		{
-			q = queue.get(0);
-			queue.remove(0);
+			Corner q = queue.pop();
 
-			for(int j = 0; j < q.adjacent.size(); j++)
+			for(Corner adjacent : q.adjacent)
 			{
-				r = q.adjacent.get(j);
-				newMoisture = q.moisture * 0.9;
-				if (newMoisture > r.moisture) {
-					r.moisture = newMoisture;
-					queue.add(r);
+				double newMoisture = q.moisture * 0.9;
+				if (newMoisture > adjacent.moisture) {
+					adjacent.moisture = newMoisture;
+					queue.push(adjacent);
 				}
 			}
 		}
 		// Salt water
-		for(int j = 0; j < corners.size(); j++)
+		for(Corner cr : corners)
 		{
-			q = corners.get(j);
-			if (q.ocean || q.coast) {
-				q.moisture = 1.0;
+			if (cr.ocean || cr.coast) 
+			{
+				cr.moisture = 1.0;
 			}
 		}
 	}
@@ -1019,15 +906,12 @@ public class Map
 
 	// Polygon moisture is the average of the moisture at corners
 	public void assignPolygonMoisture() {
-		Center p; Corner q; double sumMoisture;
-		for(int i = 0; i < centers.size(); i++)
+		double sumMoisture;
+		for(Center p : centers)
 		{
-			p = centers.get(i);
-
 			sumMoisture = 0.0;
-			for(int j = 0; j < corners.size(); j++)
+			for(Corner q : p.corners)
 			{
-				q = corners.get(j);
 				if (q.moisture > 1.0) q.moisture = 1.0;
 				sumMoisture += q.moisture;
 			}
@@ -1116,12 +1000,12 @@ public class Map
 		if (p.ocean) return -1;
 		else return Math.floor(p.elevation*10);
 	}
-	
+
 	public Center getClosestCenter(Point p)
 	{
 		Center closest = centers.get(0);
 		double distance = p.distanceSq(centers.get(0).point);
-		
+
 		for (int i = 1; i < centers.size(); i++)
 		{
 			double newDist = p.distanceSq(centers.get(i).point);
@@ -1133,15 +1017,15 @@ public class Map
 		}
 		return closest;
 	}
-	
+
 	public Corner getClosestCorner(Point p)
 	{
 		Corner closest = corners.get(0);
-		double distance = p.distanceSq(corners.get(0).point);
-		
+		double distance = p.distance(corners.get(0).point);
+
 		for (int i = 1; i < corners.size(); i++)
 		{
-			double newDist = p.distanceSq(corners.get(i).point);
+			double newDist = p.distance(corners.get(i).point);
 			if(newDist < distance)
 			{
 				distance = newDist;
